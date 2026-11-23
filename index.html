@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FUZZYRESCUE // Mission Control Pro</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <div class="brand">
+          ◈ FUZZY<span>RESCUE</span>
+          <small style="font-size: 10px; color: #8fa4ba"
+            >MISSION CONTROL / PRO v2.0</small
+          >
+        </div>
+        <div class="sub">
+          Dijital ikiz · Mamdani MIN–MAX · Centroid · 27 kural · Akademik
+          simülasyon
+        </div>
+      </div>
+      <div class="topright">
+        <span class="pill" id="status">● SİSTEM HAZIR</span
+        ><button id="export">↓ Görev raporu CSV</button
+        ><button id="save">◫ Senaryo kaydet</button
+        ><button id="load">↻ Geri yükle</button>
+      </div>
+    </header>
+    <nav class="fr-nav" aria-label="Operasyon modülleri">
+      <a href="#fr-dashboard">◈ Kontrol merkezi</a
+      ><a href="#advancedModule">✧ 3D filo</a
+      ><a href="#missionLab">◉ Mantık laboratuvarı</a
+      ><a href="#advancedOps">⌁ Afet operasyonu</a
+      ><a href="#fr-audit">✓ Sistem denetimi</a>
+    </nav>
+    <section class="fr-hero" id="fr-dashboard">
+      <div class="fr-eyebrow">
+        FUZZYRESCUE / BULANIK MANTIK TABANLI KARAR DESTEK PLATFORMU
+      </div>
+      <h1>
+        Bulanık Mantık Tabanlı
+        <span style="color: #ffb7ed"
+          >Akıllı Karar Destek ve Otonom İHA Yönetim Sistemi</span
+        >
+      </h1>
+      <p>
+        Mamdani bulanık çıkarım yöntemi, çoklu İHA koordinasyonu, dijital ikiz,
+        rota planlama ve senaryo tabanlı bilimsel analiz platformu.
+      </p>
+      <div class="fr-hero-actions">
+        <button class="primary" id="fr-launch">▶ Operasyon merkezine git</button
+        ><button id="fr-lab">◈ Bilimsel analiz</button
+        ><button id="fr-full">⛶ Tam ekran</button
+        ><button id="fr-report">↓ Sistem özeti JSON</button>
+      </div>
+      <div class="fr-ribbon">
+        <span>● OFFLINE SİMÜLASYON</span><span>27 MAMDANI KURALI</span
+        ><span>MIN / MAX + CENTROID</span><span>A* ROTA PLANLAMA</span
+        ><span>3D DİJİTAL İKİZ</span><span>GERÇEK SENSÖR BAĞLANTISI YOK</span>
+      </div>
+    </section>
+    <div class="fr-utility">
+      <span class="fr-indicator" id="fr-indicator"
+        >◉ Araştırma prototipi · modüller kontrol ediliyor</span
+      ><button id="fr-check">✓ Sistem kontrolü</button
+      ><button id="fr-copy">◫ Durum özetini kopyala</button
+      ><button id="fr-help">? Kısayollar</button>
+    </div>
+    <main>
+      <div class="metrics">
+        <div class="metric">
+          <div class="label">Batarya / SOC</div>
+          <div class="val green" id="mb">82%</div>
+          <div class="detail">Enerji rezervi</div>
+        </div>
+        <div class="metric">
+          <div class="label">Engel / LIDAR</div>
+          <div class="val" id="mo">56 m</div>
+          <div class="detail">Ön sektör algılama</div>
+        </div>
+        <div class="metric">
+          <div class="label">Tespit güveni</div>
+          <div class="val" id="mc">72%</div>
+          <div class="detail">Sentetik termal sensör</div>
+        </div>
+        <div class="metric">
+          <div class="label">Bulanık hız</div>
+          <div class="val green" id="ms">—</div>
+          <div class="detail">Centroid / 100</div>
+        </div>
+        <div class="metric">
+          <div class="label">İrtifa</div>
+          <div class="val" id="ma">45 m</div>
+          <div class="detail">Simüle edilen AGL</div>
+        </div>
+        <div class="metric">
+          <div class="label">Görev süresi</div>
+          <div class="val" id="mt">00:00</div>
+          <div class="detail">Simülasyon saati</div>
+        </div>
+      </div>
+      <div class="layout">
+        <section>
+          <div class="panel">
+            <h2>
+              01 / Operasyonel dijital ikiz
+              <small>İzometrik 2.5D görünüm · sentetik arazi</small>
+            </h2>
+            <div class="toolbar">
+              <button class="active" data-view="iso">◈ İzometrik</button
+              ><button data-view="top">▦ Üstten</button
+              ><button id="gridToggle"># Izgara</button
+              ><button id="trailToggle">⌁ İz</button
+              ><button id="heatToggle">◉ Isı haritası</button
+              ><select id="speedFactor">
+                <option value="1">1× hız</option>
+                <option value="2">2× hız</option>
+                <option value="5">5× hız</option>
+              </select>
+            </div>
+            <div class="viewport">
+              <canvas id="scene" width="1100" height="620"></canvas>
+              <div class="hud" id="hud">
+                UAV-01 / TELEMETRİ<br />LAT: SIM-41.01<br />LON: SIM-29.01<br />MODE:
+                STANDBY
+              </div>
+              <div class="legend">
+                <span class="dot" style="background: #4ce4bf"></span>İHA
+                &nbsp;<span class="dot" style="background: #ffbd65"></span>Hedef
+                &nbsp;<span class="dot" style="background: #ef7289"></span
+                >Engel<br /><span class="dot" style="background: #6f9bff"></span
+                >Görev rotası · Simüle
+              </div>
+            </div>
+            <div class="actions">
+              <button class="primary" id="start">▶ Görevi başlat</button
+              ><button id="pause">Ⅱ Duraklat</button
+              ><button class="danger" id="stop">■ Görevi durdur</button
+              ><button id="reset">↺ Sıfırla</button
+              ><button id="home">⌂ Üsse dön</button
+              ><button id="addTarget">＋ Hedef ekle</button>
+            </div>
+            <div class="tiny" style="margin-top: 9px">
+              Haritaya tıklayarak yeni bir arama hedefi ekleyebilirsin. Harita,
+              koordinatlar, hedefler ve sensörler simüledir; gerçek uçuş veya
+              afet operasyonunda kullanılmaz.
+            </div>
+          </div>
+          <div class="split">
+            <div class="panel">
+              <h2>02 / Canlı telemetri <small>Son 120 örnek</small></h2>
+              <canvas
+                class="chart"
+                id="history"
+                width="640"
+                height="210"
+              ></canvas>
+              <div class="tiny">
+                Yeşil: hız komutu · Mavi: batarya · Turuncu: hedef güveni
+              </div>
+            </div>
+            <div class="panel">
+              <h2>
+                03 / Görev hedefleri <small id="targetCount">0 hedef</small>
+              </h2>
+              <div id="targets"></div>
+              <div class="row">
+                <span>Tarama tamamlanma</span><b id="progressText">0%</b>
+              </div>
+              <div class="bar"><i id="progressBar"></i></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>
+              04 / Bulanık mantık analiz laboratuvarı
+              <small>Hesaplamalar gerçek JavaScript çıkarım motorundan</small>
+            </h2>
+            <div class="sectiontabs">
+              <button class="active" data-tab="membership">
+                Üyelik fonksiyonları</button
+              ><button data-tab="rules">27 kural matrisi</button
+              ><button data-tab="surface">Kontrol yüzeyi</button
+              ><button data-tab="defuzz">Durulaştırma</button>
+            </div>
+            <div class="tabview show" id="membership">
+              <div class="split">
+                <div>
+                  <div class="tiny">BATARYA · düşük / orta / yüksek</div>
+                  <canvas
+                    class="chart"
+                    id="cb"
+                    width="550"
+                    height="210"
+                  ></canvas>
+                </div>
+                <div>
+                  <div class="tiny">ENGEL MESAFESİ · yakın / orta / uzak</div>
+                  <canvas
+                    class="chart"
+                    id="co"
+                    width="550"
+                    height="210"
+                  ></canvas>
+                </div>
+                <div>
+                  <div class="tiny">HEDEF GÜVENİ · düşük / orta / yüksek</div>
+                  <canvas
+                    class="chart"
+                    id="cc"
+                    width="550"
+                    height="210"
+                  ></canvas>
+                </div>
+                <div>
+                  <div class="tiny">HIZ ÇIKTISI · yavaş / orta / hızlı</div>
+                  <canvas
+                    class="chart"
+                    id="cs"
+                    width="550"
+                    height="210"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="tabview" id="rules">
+              <div class="tablewrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Batarya</th>
+                      <th>Engel</th>
+                      <th>Güven</th>
+                      <th>Hız çıktısı</th>
+                      <th>Ateşleme α</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ruleTable"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tabview" id="surface">
+              <div class="tiny">
+                Kontrol yüzeyi: batarya (X) ve engel (Y) değişirken, mevcut
+                hedef güveni sabit tutulur. Renk yüksekliği hız kararını temsil
+                eder.
+              </div>
+              <canvas
+                class="chart"
+                id="surfaceCanvas"
+                width="900"
+                height="320"
+                style="height: 280px"
+              ></canvas>
+            </div>
+            <div class="tabview" id="defuzz">
+              <canvas
+                class="chart"
+                id="defuzzCanvas"
+                width="1000"
+                height="280"
+                style="height: 230px"
+              ></canvas>
+              <div class="row">
+                <span>Birleşik küme ağırlık merkezi</span><b id="centroid">—</b>
+              </div>
+              <div class="tiny">
+                μbirleşik(z) = max[min(αk, μsonuç,k(z))]; z* = ∫z·μ(z) dz /
+                ∫μ(z) dz. Sayısal integral adımı 0,5.
+              </div>
+            </div>
+          </div>
+        </section>
+        <aside>
+          <div class="panel">
+            <h2>
+              05 / Sensör ve senaryo konsolu <small>Canlı parametreler</small>
+            </h2>
+            <div class="range">
+              <label>Batarya <output id="vb"></output></label
+              ><input type="range" id="b" min="0" max="100" value="82" />
+            </div>
+            <div class="range">
+              <label>Engel uzaklığı <output id="vo"></output></label
+              ><input type="range" id="o" min="0" max="100" value="56" />
+            </div>
+            <div class="range">
+              <label>Hedef güveni <output id="vc"></output></label
+              ><input type="range" id="c" min="0" max="100" value="72" />
+            </div>
+            <div class="range">
+              <label
+                >Rüzgâr şiddeti (görsel senaryo)
+                <output id="vw"></output></label
+              ><input type="range" id="w" min="0" max="30" value="6" />
+            </div>
+            <div class="range">
+              <label>İrtifa <output id="va"></output></label
+              ><input type="range" id="a" min="10" max="100" value="45" />
+            </div>
+            <div class="row">
+              <label class="check"
+                ><input type="checkbox" id="auto" checked /> Otomatik sensör
+                senaryosu</label
+              >
+            </div>
+            <div class="row">
+              <label class="check"
+                ><input type="checkbox" id="consume" checked /> Batarya
+                tüketimi</label
+              >
+            </div>
+            <div class="tiny">
+              Rüzgâr ve irtifa bu sürümde 3D görünümü etkiler; bulanık çıkarımın
+              girişleri yalnızca batarya, engel ve hedef güvenidir.
+            </div>
+            <h2 style="margin-top: 20px">Hazır test vakaları</h2>
+            <div class="actions">
+              <button data-scenario="normal">Normal</button
+              ><button data-scenario="critical">Kritik batarya</button
+              ><button data-scenario="obstacle">Yakın engel</button
+              ><button data-scenario="target">Güçlü hedef</button
+              ><button data-scenario="stress">Zor koşullar</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>06 / Mamdani karar çekirdeği <small>MIN / MAX</small></h2>
+            <div
+              style="font-size: 24px; font-weight: 850; color: var(--mint)"
+              id="decision"
+            >
+              —
+            </div>
+            <div class="row">
+              <span>Durulaştırılmış hız</span><b id="fuzzySpeed">—</b>
+            </div>
+            <div class="row">
+              <span>Aktif kural</span><b id="activeRules">—</b>
+            </div>
+            <div class="row">
+              <span>En güçlü kural</span><b id="strongest">—</b>
+            </div>
+            <div class="row">
+              <span>Operasyon modu</span><b id="mode">BEKLEME</b>
+            </div>
+            <div class="row"><span>Çıkarım</span><b>MIN → MAX</b></div>
+            <div class="row"><span>Durulaştırma</span><b>Centroid</b></div>
+            <h2 style="margin-top: 17px">Kural aktivasyonları</h2>
+            <div id="fired"></div>
+            <div class="alert" id="warning">Simülasyon kontrolü hazır.</div>
+          </div>
+          <div class="panel">
+            <h2>07 / Operasyon günlüğü <small>Olay izleme</small></h2>
+            <div class="logs" id="logs"></div>
+            <div class="actions">
+              <button id="clearLogs">Günlüğü temizle</button
+              ><button id="snapshot">Anlık görüntü PNG</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>08 / Bilimsel doğrulama</h2>
+            <div class="row">
+              <span>Kural tabanı kapsamı</span><b>27 / 27</b>
+            </div>
+            <div class="row"><span>Girdi / çıktı sayısı</span><b>3 / 1</b></div>
+            <div class="row"><span>Üyelik ailesi</span><b>Üçgen / omuz</b></div>
+            <div class="row"><span>Çıkış örnekleme</span><b>201 nokta</b></div>
+            <div class="row">
+              <span>Kontrol döngüsü</span><b>20 Hz görsel / 2 Hz kayıt</b>
+            </div>
+            <div class="tiny">
+              Önemli: Bu proje akademik gösterimdir. Hedef güveni ve hız kural
+              tabanı öğretici amaçla tasarlanmıştır; gerçek İHA uçuş güvenliği,
+              çarpışmadan kaçınma veya insan tespiti için doğrulanmamıştır.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <section class="propanel" id="advancedModule">
+      <div class="prohead">
+        <div>
+          <h2>09 / FUZZYRESCUE ADVANCED · 3D OPERATIONS</h2>
+          <div class="protag">
+            YAZILIM TABANLI 3D DİJİTAL İKİZ · A* YOL PLANLAMA · ÇOKLU İHA FİLOSU
+          </div>
+        </div>
+        <div class="proactions">
+          <button id="proStart" class="primary">▶ Filoyu başlat</button
+          ><button id="proPause">Ⅱ Duraklat</button
+          ><button id="proReset">↻ Yeniden planla</button
+          ><button id="proCam">◎ Kamerayı sıfırla</button>
+        </div>
+      </div>
+      <div class="progrid">
+        <div>
+          <div class="procanvaswrap">
+            <canvas
+              id="pro3d"
+              class="procanvas"
+              width="1120"
+              height="700"
+            ></canvas>
+            <div class="prooverlay" id="proHud">
+              3D VIEW / ORBIT CAMERA<br />MISSION READY
+            </div>
+          </div>
+          <div class="prolegend">
+            Fareyle sürükle: kamerayı döndür · Tekerlek: yakınlaştır · Mavi
+            çizgiler: A* yolları · Turuncu: hedef · Kırmızı: yasak bölge
+          </div>
+        </div>
+        <div class="proside">
+          <div class="probox">
+            <h3>FİLO KONTROL MERKEZİ</h3>
+            <div id="proFleet"></div>
+            <div class="prohint">
+              Her İHA ayrı rota ve batarya simülasyonu kullanır. Rotalar ızgara
+              tabanlı A* ile hesaplanır; binalar ve yasak alanlardan geçiş
+              engellenir.
+            </div>
+          </div>
+          <div class="probox">
+            <h3>GÖREV KONFİGÜRASYONU</h3>
+            <label class="prohint">Görev modu</label
+            ><select id="proMode" style="width: 100%; margin: 7px 0 12px">
+              <option value="search">Koordineli arama</option>
+              <option value="priority">Öncelikli hedef tarama</option>
+              <option value="return">Tüm İHA'ları üsse döndür</option></select
+            ><label class="prohint">Simülasyon hızı</label
+            ><input
+              id="proRate"
+              type="range"
+              min="1"
+              max="8"
+              value="3"
+              style="width: 100%"
+            />
+            <div class="prohint">
+              Rota hücresi: 20 m · A* sezgisel: Öklid uzaklığı · Güvenlik
+              tamponu: 1 hücre
+            </div>
+          </div>
+          <div class="probox">
+            <h3>GÖREV ANALİTİĞİ</h3>
+            <div class="droneitem">
+              <span>Tarama kapsamı</span><b id="proCoverage">0%</b>
+            </div>
+            <div class="droneitem">
+              <span>Planlanan rota</span><b id="proDistance">—</b>
+            </div>
+            <div class="droneitem">
+              <span>Engel ihlali</span><b id="proCollision">0</b>
+            </div>
+            <div class="droneitem">
+              <span>Toplam uçuş süresi</span><b id="proTime">00:00</b>
+            </div>
+            <div class="droneitem">
+              <span>Hedef tamamlandı</span><b id="proFound">0 / 3</b>
+            </div>
+            <button id="proExport">↓ Filo raporu CSV</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="propanel">
+      <div class="prohead">
+        <div>
+          <h2>10 / AKADEMİK DOĞRULAMA LABORATUVARI</h2>
+          <div class="protag">
+            MAMDANI KONTROLÜ / SABİT KURAL REFERANSI / TEKRARLANABİLİR TESTLER
+          </div>
+        </div>
+        <button class="primary" id="runBench">
+          ▶ 100 senaryo testi çalıştır
+        </button>
+      </div>
+      <div class="benchmark">
+        <div class="benchmetric">
+          <span>Test sayısı</span><b id="benchCount">—</b
+          ><span class="prohint">Deterministik test örnekleri</span>
+        </div>
+        <div class="benchmetric">
+          <span>Ortalama bulanık hız</span><b id="benchFuzzy">—</b
+          ><span class="prohint">Centroid hız komutu / 100</span>
+        </div>
+        <div class="benchmetric">
+          <span>Ortalama fark</span><b id="benchDelta">—</b
+          ><span class="prohint">Bulanık − sabit kontrol</span>
+        </div>
+      </div>
+      <div class="probox">
+        <table class="protable">
+          <thead>
+            <tr>
+              <th>Senaryo</th>
+              <th>Batarya</th>
+              <th>Engel</th>
+              <th>Güven</th>
+              <th>Bulanık hız</th>
+              <th>Sabit hız</th>
+            </tr>
+          </thead>
+          <tbody id="benchRows">
+            <tr>
+              <td colspan="6">Testleri başlatmak için düğmeye bas.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="prohint" style="margin-top: 10px">
+          Referans sabit kontrol: batarya &lt; 20 veya engel &lt; 15 ise hız 15;
+          hedef güveni &gt; 75 ise 35; aksi halde 65. Bu karşılaştırma hız
+          komutlarını inceler; gerçek kurtarma başarısı veya güvenlik üstünlüğü
+          iddia etmez.
+        </div>
+      </div>
+    </section>
+    <section class="fr-audit" id="fr-audit">
+      <div class="fr-section-heading">
+        <strong>11 / SİSTEM SAĞLIĞI & AKADEMİK ŞEFFAFLIK</strong
+        ><span style="color: #d6afd8; font-size: 11px"
+          >Otomatik arayüz denetimi</span
+        >
+      </div>
+      <div class="fr-audit-grid">
+        <div class="fr-audit-item">
+          <b id="fr-modules">—</b><span>Temel modül erişilebilirliği</span>
+        </div>
+        <div class="fr-audit-item">
+          <b id="fr-rules">27</b><span>Mamdani kural sayısı</span>
+        </div>
+        <div class="fr-audit-item">
+          <b id="fr-canvas">—</b><span>Grafik yüzeyleri</span>
+        </div>
+        <div class="fr-audit-item">
+          <b id="fr-health">—</b><span>Arayüz doğrulama durumu</span>
+        </div>
+      </div>
+      <div class="fr-audit-details" id="fr-audit-details">
+        Denetim başlatılıyor…
+      </div>
+      <div class="actions">
+        <button class="primary" id="fr-recheck">↻ Denetimi yenile</button
+        ><button id="fr-export-audit">↓ Denetim raporu</button>
+      </div>
+      <p class="tiny">
+        Denetim, DOM bileşenlerinin erişilebilirliğini ve temel bulanık mantık
+        değişmezlerini sınar. Gerçek uçuş güvenliği, kurtarma başarısı, donanım
+        entegrasyonu veya saha doğrulaması anlamına gelmez.
+      </p>
+    </section>
+    <div
+      class="fr-toast"
+      id="fr-toast"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></div>
+    <footer>
+      FUZZYRESCUE v2.0 · Offline çalışan tek dosyalı araştırma prototipi ·
+      Gerçek İHA, GPS, termal kamera, LIDAR veya harici API bağlantısı yoktur.
+    </footer>
+
+    <section id="missionLab">
+      <div class="ml-title">
+        <div>
+          <div class="ml-eyebrow">FUZZYRESCUE / RESEARCH EDITION / V6.0</div>
+          <h2>MISSION INTELLIGENCE <span style="color: #ef9fdb">LAB</span></h2>
+          <div class="ml-desc">
+            Senaryo orkestrasyonu, zaman serisi analizi, açıklanabilir Mamdani
+            kararları, sentetik sensör gürültüsü ve tekrarlanabilir deneyler.
+            Mevcut kontrol panellerinden bağımsız ek araştırma modülü.
+          </div>
+        </div>
+        <div class="ml-tags">
+          <span>● SİMÜLASYON</span><span>27 KURAL</span
+          ><span>201 CENTROID ÖRNEĞİ</span><span>CSV + JSON</span>
+        </div>
+      </div>
+      <div class="ml-grid">
+        <div class="ml-card">
+          <h3>01 / Senaryo yönetimi</h3>
+          <div class="ml-actions">
+            <button class="ml-preset" data-ml="normal">Normal görev</button
+            ><button class="ml-preset" data-ml="battery">Kritik batarya</button
+            ><button class="ml-preset" data-ml="obstacle">Yakın engel</button
+            ><button class="ml-preset" data-ml="target">Hedef tespiti</button
+            ><button class="ml-preset" data-ml="storm">Zorlu koşullar</button>
+          </div>
+          <div class="ml-ctrl">
+            <label for="mlB">Batarya</label
+            ><input id="mlB" type="range" min="0" max="100" value="78" /><output
+              id="mlBv"
+              >78%</output
+            >
+          </div>
+          <div class="ml-ctrl">
+            <label for="mlO">Engel mesafesi</label
+            ><input id="mlO" type="range" min="0" max="100" value="58" /><output
+              id="mlOv"
+              >58 m</output
+            >
+          </div>
+          <div class="ml-ctrl">
+            <label for="mlC">Hedef güveni</label
+            ><input id="mlC" type="range" min="0" max="100" value="68" /><output
+              id="mlCv"
+              >68%</output
+            >
+          </div>
+          <div class="ml-ctrl">
+            <label for="mlNoise">Sensör gürültüsü</label
+            ><input
+              id="mlNoise"
+              type="range"
+              min="0"
+              max="20"
+              value="4"
+            /><output id="mlNoisev">±4</output>
+          </div>
+          <div class="ml-ctrl">
+            <label for="mlRate">Simülasyon hızı</label
+            ><input
+              id="mlRate"
+              type="range"
+              min="1"
+              max="10"
+              value="3"
+            /><output id="mlRatev">3×</output>
+          </div>
+          <div class="ml-actions">
+            <button id="mlRun" class="ml-primary">▶ Simülasyonu başlat</button
+            ><button id="mlStep">Tek adım</button
+            ><button id="mlStop">Durdur</button
+            ><button id="mlReset">Sıfırla</button>
+          </div>
+          <div class="ml-statgrid">
+            <div class="ml-stat">
+              <strong id="mlSpeed">—</strong><small>Bulanık hız /100</small>
+            </div>
+            <div class="ml-stat">
+              <strong id="mlBase">—</strong><small>Sabit kontrol /100</small>
+            </div>
+            <div class="ml-stat">
+              <strong id="mlDiff">—</strong><small>Hız farkı</small>
+            </div>
+            <div class="ml-stat">
+              <strong id="mlCount">0</strong><small>Örnek sayısı</small>
+            </div>
+          </div>
+          <h3>02 / Karar geçmişi</h3>
+          <canvas
+            id="mlHistory"
+            width="900"
+            height="310"
+            aria-label="Hız komutu zaman serisi"
+          ></canvas>
+          <div class="ml-foot">
+            Pembe: Mamdani • Altın: sabit eşikli kontrol. Son 90 ölçüm.
+          </div>
+        </div>
+        <div class="ml-card">
+          <h3>03 / Açıklanabilir karar motoru</h3>
+          <div id="mlRules"></div>
+          <h3 class="ml-section">04 / Çıkış kümesi ve centroid</h3>
+          <canvas
+            id="mlOutput"
+            width="900"
+            height="300"
+            aria-label="Birleşik üyelik fonksiyonu"
+          ></canvas>
+          <div class="ml-foot">
+            Alan grafiği mevcut üyelik ve MIN–MAX kesişimlerini gösterir. Dikey
+            çizgi hesaplanan centroid değeridir.
+          </div>
+          <h3>05 / Olay kayıtları</h3>
+          <div class="ml-log" id="mlLog" aria-live="polite"></div>
+          <div class="ml-actions">
+            <button id="mlCsv">CSV dışa aktar</button
+            ><button id="mlJson">JSON deney kaydı</button
+            ><button id="mlSweep">125 koşullu tarama</button>
+          </div>
+          <div class="ml-foot" id="mlSweepResult">
+            Deney henüz çalıştırılmadı. Tarama, 5×5×5 deterministik kombinasyon
+            kullanır.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="advancedOps">
+      <div
+        style="
+          font-size: 11px;
+          letter-spacing: 3px;
+          color: #efa7d9;
+          font-weight: 800;
+        "
+      >
+        FUZZYRESCUE / ADVANCED OPERATIONS / V7.0
+      </div>
+      <h2>
+        TACTICAL
+        <span style="color: #f4a5df">MISSION CONTROL — ELITE FLEET</span>
+      </h2>
+      <div class="ao-grid">
+        <div class="ao-panel">
+          <h3>01 / Afet sahası ve çoklu İHA görev planlaması</h3>
+          <div class="ao-row">
+            <button id="aoGenerate">↻ Yeni afet sahası</button
+            ><button id="aoAssign">◇ Görevleri ata</button
+            ><button id="aoPlay">▶ Operasyonu başlat</button
+            ><button id="aoPause">Ⅱ Duraklat</button
+            ><button id="aoNext">⏭ Tek adım</button
+            ><button id="aoExport">↓ Görev raporu</button>
+          </div>
+          <canvas
+            id="aoMap"
+            width="900"
+            height="530"
+            aria-label="Afet bölgesi ve çoklu İHA görev rotaları"
+          ></canvas>
+          <div class="elite-fleet-cards">
+            <div class="elite-fleet-card">
+              <div class="elite-fleet-symbol" style="color: #f4a2e2">✥</div>
+              <div>
+                <strong>FR-01 · SCOUT</strong
+                ><small>Keşif / dört rotorlu hafif İHA</small>
+              </div>
+              <span class="elite-live">SIM</span>
+            </div>
+            <div class="elite-fleet-card">
+              <div class="elite-fleet-symbol" style="color: #b78bf5">✣</div>
+              <div>
+                <strong>FR-02 · THERMAL</strong
+                ><small>Termal arama / sensör modülü</small>
+              </div>
+              <span class="elite-live">SIM</span>
+            </div>
+            <div class="elite-fleet-card">
+              <div class="elite-fleet-symbol" style="color: #ffd49b">✺</div>
+              <div>
+                <strong>FR-03 · CARGO</strong
+                ><small>Altı rotorlu / yardım yükü konsepti</small>
+              </div>
+              <span class="elite-live">SIM</span>
+            </div>
+          </div>
+          <div class="ao-mission">
+            <div class="ao-mission-head">
+              <strong id="aoPhase">01 · GÖREV HAZIR</strong
+              ><span id="aoProgressText"
+                >0 / 5 hedef doğrulandı (simülasyon)</span
+              >
+            </div>
+            <div class="ao-track"><div id="aoProgressFill"></div></div>
+            <div class="ao-phases">
+              <span data-phase="plan">01 PLANLA</span
+              ><span data-phase="launch">02 KALKIŞ</span
+              ><span data-phase="scan">03 TARAMA</span
+              ><span data-phase="complete">04 SONUÇ</span>
+            </div>
+          </div>
+          <div class="ao-kpis">
+            <div class="ao-kpi">
+              <strong id="aoCoverage">0%</strong><small>Hedef kapsama</small>
+            </div>
+            <div class="ao-kpi">
+              <strong id="aoDistance">0</strong
+              ><small>Toplam rota / hücre</small>
+            </div>
+            <div class="ao-kpi">
+              <strong id="aoConflicts">0</strong><small>Atanamayan hedef</small>
+            </div>
+          </div>
+          <p class="ao-note">
+            Izgara tabanlı A* rota planlama, engel genişletme ve hedeflere
+            açgözlü görev atama. Hareketler ayrık zamanlıdır; drone çarpışma
+            önleme veya gerçek uçuş fiziği modellenmez.
+          </p>
+        </div>
+        <div class="ao-panel">
+          <h3>02 / Sentetik termal algılama</h3>
+          <canvas
+            id="aoThermal"
+            width="600"
+            height="310"
+            aria-label="Sentetik termal kamera görüntüsü"
+          ></canvas>
+          <div class="ao-row">
+            <span class="ao-label">Termal gürültü</span
+            ><input
+              id="aoNoise"
+              type="range"
+              min="0"
+              max="50"
+              value="12"
+            /><span id="aoNoiseV">12%</span>
+          </div>
+          <div class="ao-row">
+            <button id="aoThermalRefresh">↻ Yeni termal kare</button
+            ><button id="aoThermalSave">↓ Termal PNG</button>
+          </div>
+          <p class="ao-note">
+            Tamamen üretilmiş ısı haritasıdır; gerçek termal kamera, görüntü
+            işleme modeli veya insan tespit doğruluğu içermez.
+          </p>
+          <h3 style="margin-top: 18px">03 / Görev atama ve telemetri</h3>
+          <table class="ao-table">
+            <thead>
+              <tr>
+                <th>İHA</th>
+                <th>Hedef</th>
+                <th>Rota</th>
+                <th>Durum</th>
+              </tr>
+            </thead>
+            <tbody id="aoFleet"></tbody>
+          </table>
+          <h3 style="margin-top: 18px">04 / Canlı operasyon günlüğü</h3>
+          <div
+            id="aoEvents"
+            class="ao-events"
+            aria-live="polite"
+            style="
+              min-height: 92px;
+              max-height: 220px;
+              overflow: auto;
+              background: #1c0b29;
+              border: 1px solid #784683;
+              border-radius: 12px;
+              padding: 10px;
+              margin-bottom: 14px;
+            "
+          ></div>
+          <h3 style="margin-top: 18px">05 / Deney güvenilirliği</h3>
+          <p class="ao-note" id="aoStatus">
+            Yeni senaryo hazır. Harita 24×16 hücre, 3 İHA ve 5 arama hedefi
+            içerir. Her hedef için ulaşılabilirlik kontrol edilir.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>
